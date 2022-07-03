@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+
+  backend:
+    image: nginxdemos/hello:plain-text
+    container_name: backend
+    hostname: backend
+    environment:
+      - TERM=xterm-color
+  
+  ebpf:
+    image: ubuntu
+    privileged: true
+    environment:
+      - TERM=xterm-color
+      - PATH=$PATH:/usr/local/go/bin
+    volumes:
+      - /usr:/usr
+      - /sys:/sys
+      - /home:/home  
+    command: tail -f /dev/null
