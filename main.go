@@ -71,6 +71,9 @@ func main() {
 	must(err)
 	defer kpTC.Close()
 
+	// link.AttachSocketFilter()
+	// syscall.Socket()
+
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
