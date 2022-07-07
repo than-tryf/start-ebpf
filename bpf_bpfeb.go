@@ -54,8 +54,10 @@ type bpfSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type bpfProgramSpecs struct {
-	Hello      *ebpf.ProgramSpec `ebpf:"hello"`
-	Tcpconnect *ebpf.ProgramSpec `ebpf:"tcpconnect"`
+	Hello        *ebpf.ProgramSpec `ebpf:"hello"`
+	SocketFilter *ebpf.ProgramSpec `ebpf:"socket_filter"`
+	Tcpconnect   *ebpf.ProgramSpec `ebpf:"tcpconnect"`
+	XdpBlock     *ebpf.ProgramSpec `ebpf:"xdp_block"`
 }
 
 // bpfMapSpecs contains maps before they are loaded into the kernel.
@@ -97,14 +99,18 @@ func (m *bpfMaps) Close() error {
 //
 // It can be passed to loadBpfObjects or ebpf.CollectionSpec.LoadAndAssign.
 type bpfPrograms struct {
-	Hello      *ebpf.Program `ebpf:"hello"`
-	Tcpconnect *ebpf.Program `ebpf:"tcpconnect"`
+	Hello        *ebpf.Program `ebpf:"hello"`
+	SocketFilter *ebpf.Program `ebpf:"socket_filter"`
+	Tcpconnect   *ebpf.Program `ebpf:"tcpconnect"`
+	XdpBlock     *ebpf.Program `ebpf:"xdp_block"`
 }
 
 func (p *bpfPrograms) Close() error {
 	return _BpfClose(
 		p.Hello,
+		p.SocketFilter,
 		p.Tcpconnect,
+		p.XdpBlock,
 	)
 }
 
