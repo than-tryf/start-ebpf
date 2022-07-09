@@ -4,6 +4,15 @@
 #include <bpf/bpf_helpers.h>
 // #include<stdio.h>
 
+#define MAX_MAP_ENTRIES 1024
+
+struct bpf_map_def SEC("maps") my_map = {
+      .type = BPF_MAP_TYPE_ARRAY,
+      .key_size = sizeof(u32),
+      .value_size = sizeof(long),
+      .max_entries = MAX_MAP_ENTRIES
+};
+
 
 
 char __license[] SEC("license") = "Dual MIT/GPL";
