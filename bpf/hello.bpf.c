@@ -54,7 +54,6 @@ int xdp_block(struct xdp_md *ctx) {
 	
 	void *data = (void *)(long)ctx->data;
 	void *data_end = (void *)(long)ctx->data_end;
-
 	struct ethhdr *eth = data;
 
 	char strng[100] = "[XDP]:%d\n";
