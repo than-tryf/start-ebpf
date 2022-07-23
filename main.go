@@ -84,7 +84,7 @@ func main() {
 	must(err)
 
 	sll := syscall.SockaddrLinklayer{
-		Ifindex:  14, //ip link show -> get the index number of the interface
+		Ifindex:  12, //ip link show -> get the index number of the interface
 		Protocol: htons(syscall.ETH_P_ALL),
 	}
 
@@ -94,7 +94,7 @@ func main() {
 	err = syscall.SetsockoptInt(fd, syscall.SOL_SOCKET, 50, objs.SocketFilter.FD())
 	must(err)
 
-	iface, err := net.InterfaceByIndex(14)
+	iface, err := net.InterfaceByIndex(12)
 	must(err)
 	lxdp, err := link.AttachXDP(link.XDPOptions{
 		Program:   objs.XdpBlock,

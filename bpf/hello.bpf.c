@@ -2,6 +2,7 @@
 
 #include "vmlinux.h"
 #include <bpf/bpf_helpers.h>
+// #include <linux/if_ether.h>
 // #include<stdio.h>
 
 #define MAX_MAP_ENTRIES 1024
@@ -50,7 +51,14 @@ int socket_filter(struct __sk_buff *skb) {
 
 SEC("xdp")
 int xdp_block(struct xdp_md *ctx) {
+	
+	void *data = (void *)(long)ctx->data;
+	void *data_end = (void *)(long)ctx->data_end;
+
+	struct ethhdr *eth = data;
+
 	char strng[100] = "[XDP]:%d\n";
+
   	bpf_trace_printk(strng, sizeof(strng), ctx->ingress_ifindex);
  	return XDP_DROP;
 }

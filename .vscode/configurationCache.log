@@ -1,0 +1,1 @@
+{"buildTargets":["all","clean","generate","hello","hello.bpf.o","run","vmlinux"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
