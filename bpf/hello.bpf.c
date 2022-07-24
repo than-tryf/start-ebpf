@@ -1,29 +1,38 @@
 // +build ignore
 
 #include "vmlinux.h"
-#include <bpf/bpf_helpers.h>
+#include<bpf_helpers.h>
+// #include <bpf/bpf_helpers.h>
 // #include <linux/if_ether.h>
 // #include<stdio.h>
 
 #define MAX_MAP_ENTRIES 1024
-
+/*
+* DEPRECATED
 struct bpf_map_def SEC("maps") my_map = {
       .type = BPF_MAP_TYPE_ARRAY,
       .key_size = sizeof(u32),
       .value_size = sizeof(long),
       .max_entries = MAX_MAP_ENTRIES
 };
+*/
 
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, MAX_MAP_ENTRIES);
+    __type(key, u32);
+    __type(value, long);
+} my_map SEC(".maps");
 
 
 char __license[] SEC("license") = "Dual MIT/GPL";
 
-struct bpf_map_def SEC("maps") kprobe_map = {
-	.type        = BPF_MAP_TYPE_ARRAY,
-	.key_size    = sizeof(u32),
-	.value_size  = sizeof(u64),
-	.max_entries = 1,
-};
+// struct bpf_map_def SEC("maps") kprobe_map = {
+// 	.type        = BPF_MAP_TYPE_ARRAY,
+// 	.key_size    = sizeof(u32),
+// 	.value_size  = sizeof(u64),
+// 	.max_entries = 1,
+// };
 
 SEC("kprobe/sys_execve")
 int hello(void *ctx)
