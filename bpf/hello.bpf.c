@@ -65,8 +65,22 @@ int xdp_block(struct xdp_md *ctx) {
 	void *data_end = (void *)(long)ctx->data_end;
 	struct ethhdr *eth = data;
 
-	char strng[100] = "[XDP]:%d\n";
+	// if (data + sizeof(struct ethhdr) > data_end)
+	// 	return XDP_DROP;
+	
+	// struct iphdr *iph = data + sizeof(struct ethhdr);
+	// if (data + sizeof( struct ethhdr) + sizeof(struct iphdr) > data_end)
+	// 	return XDP_DROP;
 
-  	bpf_trace_printk(strng, sizeof(strng), ctx->ingress_ifindex);
- 	return XDP_DROP;
+	// char strng[100] = "[XDP]:%s\n";
+	// char strng[100] = "[XDP]:Source addr %d.%d\n";
+	// char strng2[100] = "[XDP]:Source addr2 %d.%d\n";
+	char strng3[100] = "[XDP]:ethhdr source : %d\n";
+	
+  	// bpf_trace_printk(strng, sizeof(strng), (iph->saddr >> 24) & 0xFF, (iph->saddr >> 16) & 0xFF);
+  	// bpf_trace_printk(strng2, sizeof(strng2), (iph->saddr >> 8) & 0xFF, (iph->saddr) & 0xFF);
+
+	
+  	bpf_trace_printk(strng3, sizeof(strng3),  ntohs(eth->h_proto));
+ 	return XDP_PASS;
 }
