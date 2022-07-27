@@ -2,6 +2,7 @@
 
 #include "vmlinux.h"
 #include<bpf_helpers.h>
+#include<bpf_endian.h>
 // #include <bpf/bpf_helpers.h>
 // #include <linux/if_ether.h>
 // #include<stdio.h>
@@ -65,22 +66,26 @@ int xdp_block(struct xdp_md *ctx) {
 	void *data_end = (void *)(long)ctx->data_end;
 	struct ethhdr *eth = data;
 
-	// if (data + sizeof(struct ethhdr) > data_end)
-	// 	return XDP_DROP;
+	if (data + sizeof(struct ethhdr) > data_end)
+		return XDP_DROP;
 	
-	// struct iphdr *iph = data + sizeof(struct ethhdr);
-	// if (data + sizeof( struct ethhdr) + sizeof(struct iphdr) > data_end)
-	// 	return XDP_DROP;
+	struct iphdr *iph = data + sizeof(struct ethhdr);
+	if (data + sizeof(struct ethhdr) + sizeof(struct iphdr) > data_end)
+		return XDP_DROP;
 
-	// char strng[100] = "[XDP]:%s\n";
+	char strng[100] = "[XDP]:%u\n";
 	// char strng[100] = "[XDP]:Source addr %d.%d\n";
-	// char strng2[100] = "[XDP]:Source addr2 %d.%d\n";
-	char strng3[100] = "[XDP]:ethhdr source : %d\n";
-	
+	char strng2[100] = "[XDP]:Source eth addr2 %x:%2x:%2x\n";
+	char strng3[100] = "[XDP]:Source ip addr2: %d , Dest ip addr: %d\n";
+	// char strng3[100] = "[XDP]:ethhdr source : %u\n";
   	// bpf_trace_printk(strng, sizeof(strng), (iph->saddr >> 24) & 0xFF, (iph->saddr >> 16) & 0xFF);
   	// bpf_trace_printk(strng2, sizeof(strng2), (iph->saddr >> 8) & 0xFF, (iph->saddr) & 0xFF);
 
+	bpf_trace_printk(strng, sizeof(strng), bpf_ntohs(eth->h_proto));
 	
-  	bpf_trace_printk(strng3, sizeof(strng3),  ntohs(eth->h_proto));
- 	return XDP_PASS;
+	bpf_trace_printk(strng2, sizeof(strng2), eth->h_dest[0], eth->h_dest[1], eth->h_dest[4]);
+
+	bpf_trace_printk(strng3, sizeof(strng3), iph->saddr & 0xFFFFFFFF, iph->daddr);
+ 	
+	return XDP_PASS;
 }
