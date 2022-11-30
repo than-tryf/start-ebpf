@@ -21,6 +21,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"strings"
 	"unsafe"
 )
 
@@ -67,6 +68,7 @@ func main() {
 	must(rlimit.RemoveMemlock())
 
 	objs := bpfObjects{}
+	// objs.MyMap.Put()
 
 	must(loadBpfObjects(&objs, nil))
 	defer objs.Close()
@@ -82,9 +84,27 @@ func main() {
 
 	fd, err := syscall.Socket(syscall.AF_PACKET, syscall.SOCK_RAW|syscall.SOCK_CLOEXEC|syscall.SOCK_NONBLOCK, int(htons(syscall.ETH_P_ALL)))
 	must(err)
+	ifaceIndex := 0
+	ifaceDocker := 0
+	ifaces, _ := net.Interfaces()
+	for _, iface := range ifaces {
+		if strings.Contains(iface.Name, "wlp") {
+			ifaceIndex = iface.Index
+			break
+		}
+
+	}
+
+	for _, iface := range ifaces {
+		if strings.Contains(iface.Name, "br-17") {
+			ifaceDocker = iface.Index
+			break
+		}
+
+	}
 
 	sll := syscall.SockaddrLinklayer{
-		Ifindex:  14, //ip link show -> get the index number of the interface
+		Ifindex:  ifaceIndex, //ip link show -> get the index number of the interface
 		Protocol: htons(syscall.ETH_P_ALL),
 	}
 
@@ -94,13 +114,23 @@ func main() {
 	err = syscall.SetsockoptInt(fd, syscall.SOL_SOCKET, 50, objs.SocketFilter.FD())
 	must(err)
 
-	iface, err := net.InterfaceByIndex(14)
+	log.Printf("Attaching to ifnterface with index %v", ifaceIndex)
+	iface, err := net.InterfaceByIndex(ifaceIndex)
 	must(err)
 	lxdp, err := link.AttachXDP(link.XDPOptions{
 		Program:   objs.XdpBlock,
 		Interface: iface.Index,
 	})
 	defer lxdp.Close()
+
+	log.Printf("Attaching to docker ifnterface with index %v", ifaceDocker)
+	iface2, err := net.InterfaceByIndex(ifaceDocker)
+	must(err)
+	lxdpDocker, err := link.AttachXDP(link.XDPOptions{
+		Program:   objs.XdpBlock,
+		Interface: iface2.Index,
+	})
+	defer lxdpDocker.Close()
 
 	must(err)
 	ticker := time.NewTicker(1 * time.Second)

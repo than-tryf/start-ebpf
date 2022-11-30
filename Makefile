@@ -33,5 +33,11 @@ generate:
 run:
 	go run -exec sudo .
 
+
+build:
+	go build .
+
+generate-all: generate build
+
 vmlinux:
 	bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h
